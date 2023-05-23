@@ -1,58 +1,57 @@
 const axios = require("axios");
 const { JSDOM } = require("jsdom");
 const XLSX = require("xlsx");
-const scrapPort = async () => {
+
+const scrapExpectedArrivalsInPort = async (portId) => {
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet([]);
   const tableData = [];
-  for (let i = 1; i <= 5; i++) {
-    const url = `https://www.myshiptracking.com/ports?sort=ID&page=${i}`;
-    const { data } = await axios.get("https://www.myshiptracking.com/ports");
+  
+  const url = `https://www.myshiptracking.com/estimate?pid=${portId}`;
+  const { data } = await axios.get(url);
+  const dom = new JSDOM(data);
+  const document = dom.window.document;
+  const iterations = Math.round(
+    parseInt(
+      document
+        .getElementsByClassName("pb-2")[0]
+        .querySelectorAll("div")[0]
+        .textContent.split(" ")[5]
+    ) / 50
+  );
+
+  for (let i = 1; i <= iterations; i++) {
+    const url = `https://www.myshiptracking.com/estimate?sort=TIME&page=${iterations}&pid=${portId}`;
+    const { data } = await axios.get(url);
     const dom = new JSDOM(data);
     const document = dom.window.document;
     const table = document.querySelector("table");
     const rows = table.querySelectorAll("tr");
-    let portId;
+
     rows.forEach((row) => {
       const cells = row.querySelectorAll("td");
       const rowData = [];
       cells.forEach((cell) => {
-        const href = cell.childNodes[0].href;
-        if (href !== undefined) {
-          const splitted = href.split("#inport");
-          if (splitted.length === 2) portId = splitted[0].split("-id-")[1];
-        }
         const cellContent = cell.textContent.trim();
         //if(rowData.length = 0) rowData.push(href);
         if (cellContent.length > 0 && cellContent.length < 50) {
           rowData.push(cellContent);
-          if (rowData.length === 7){
-            rowData.unshift(portId);
-            rowData.push(`/in-port/${portId}`,`/arrivals/${portId}`)
-          };
+          if (rowData.length === 7) rowData.unshift(portId);
         }
       });
+      console.log("writing data..", i);
+
       if (rowData.length > 0) tableData.push(rowData);
     });
+    
   }
-  
-  tableData.unshift([
-    "Port Id",
-    "Port Name",
-    "Type",
-    "Size",
-    "Vessels In Port",
-    "Arrivals",
-    "Departures",
-    "Excepted Arrivals",
-    "View Vessels In port",
-    "View Expected Arrivals"
-  ]);
+
+  tableData.unshift(["MMSI", "Vessel", "PORT", "Estimated Arrival"]);
   XLSX.utils.sheet_add_aoa(worksheet, tableData, { origin: -1 });
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-  const excelFilePath = "generated/ports.xlsx"; // Path and filename for the output Excel file
+  const excelFilePath = "generated/excepted-arrivals-in-ports.xlsx"; // Path and filename for the output Excel file
   XLSX.writeFile(workbook, excelFilePath);
   return tableData;
 };
 
-module.exports = scrapPort;
+module.exports = scrapExpectedArrivalsInPort;

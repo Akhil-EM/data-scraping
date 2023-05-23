@@ -30,29 +30,22 @@
   </style>
 </head>
 <body>
-  <h3>Ports</h3>
-  <button onclick="window.open('/download/ports')">Download Excel</button>
+  <h3>Arrivals In Port</h3>
+  <button onclick="window.open('/download/expected')">Download Excel</button>
   <table>
     <thead>
     </thead>
     <tbody>
-        <% portCount = 0
-          ports.forEach(function(row) { 
+        <% 
+          vessels.forEach(function(row) { 
             %>
             <tr>
               <%
-                count = 0; 
-                row.forEach(function(cell) {
-                count++;
-                if (portCount !== 0  && (count === 9 || count === 10) ) { %>
-                   <td><a href="<%= cell %>/<%= count === 9 ? row[4] : row[5] %>">view</a></td>
-                <% }else {%>    
-                   <td><%= cell %></td>
-                <% } %>          
+                row.forEach(function(cell) { %>
+                   <td><%= cell %></td>      
               <% }) %>
             </tr>
           <% 
-            portCount++;
            }) 
            %>
     </tbody>
