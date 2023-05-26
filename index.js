@@ -23,7 +23,7 @@ app.get('/in-port/:portId/:vesselsCount',async (req,res)=>{
     } catch (error) {
         res.send('data scrapping error',error)
     }
-});
+});  
 
 app.get("/arrivals/:portId/:vesselsCount",async (req,res)=>{
     try {
@@ -49,6 +49,9 @@ app.get('/download/:item',(req,res)=>{
     }
     res.download(file);
 })
+
+
+
 
 app.all("*",(req,res)=>{
     res.render('error');

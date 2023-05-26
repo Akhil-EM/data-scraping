@@ -5,9 +5,9 @@ const scrapPort = async () => {
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet([]);
   const tableData = [];
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 144; i++) {
     const url = `https://www.myshiptracking.com/ports?sort=ID&page=${i}`;
-    const { data } = await axios.get("https://www.myshiptracking.com/ports");
+    const { data } = await axios.get(url);
     const dom = new JSDOM(data);
     const document = dom.window.document;
     const table = document.querySelector("table");
@@ -33,6 +33,9 @@ const scrapPort = async () => {
         }
       });
       if (rowData.length > 0) tableData.push(rowData);
+      console.log('====================================');
+      console.log('writing data ',i);
+      console.log('====================================');
     });
   }
   
