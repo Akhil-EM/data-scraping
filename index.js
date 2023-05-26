@@ -57,4 +57,4 @@ app.all("*",(req,res)=>{
     res.render('error');
 })
 
-app.listen(3000,()=>console.log('application up and running'));
+app.listen(3300,()=>console.log('application up and running'));
