@@ -7,9 +7,10 @@ app.set('view engine', 'ejs');
 
 app.get('/',async (req,res)=>{
     try {
-        const ports = await scrapPort();
-        console.log(ports);
-        res.render('ports',{ports})
+        // const ports = await scrapPort();
+        // console.log(ports);
+        const ports = [];
+        res.render('ports',{ports});
     } catch (error) {
         res.send('data scrapping error',error)
     }
